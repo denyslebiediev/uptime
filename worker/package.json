@@ -6,6 +6,7 @@
     "dev": "wrangler dev",
     "test": "vitest run",
     "typecheck": "wrangler types --check && tsc --noEmit",
+    "seed:local": "wrangler d1 migrations apply uptime --local && node scripts/seed.mjs > .wrangler/seed.sql && wrangler d1 execute uptime --local --file .wrangler/seed.sql",
     "deploy": "wrangler d1 migrations apply uptime --remote && wrangler deploy"
   },
   "devDependencies": {
