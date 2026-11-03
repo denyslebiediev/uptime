@@ -6,8 +6,8 @@
   "observability": { "enabled": true },
   "workers_dev": false,
   "routes": [{ "pattern": "uptime-api.denyslebiediev.com", "custom_domain": true }],
-  // placeholder id until Task 5; read replication is opt-in, so it stays off
-  "d1_databases": [{ "binding": "DB", "database_name": "uptime", "database_id": "00000000-0000-0000-0000-000000000000", "migrations_dir": "migrations" }],
+  // read replication is opt-in, so it stays off
+  "d1_databases": [{ "binding": "DB", "database_name": "uptime", "database_id": "5ea6cd44-df1c-44cc-9f5c-ddd4574ae029", "migrations_dir": "migrations" }],
   "ratelimits": [{ "name": "RATE_LIMITER", "namespace_id": "1001", "simple": { "limit": 120, "period": 60 } }],
   // typed by `wrangler types`; a first deploy without them is refused
   "secrets": { "required": ["TOKEN_CENTRALNA", "TOKEN_RAYDUZHNA"] },
