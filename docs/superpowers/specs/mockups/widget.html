@@ -1,0 +1,105 @@
+<style>
+  .wcards{display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:18px}
+  .wcards .card{cursor:pointer}
+  .wcards .card:hover{transform:none}
+  .stagew{padding:22px;display:flex;flex-wrap:wrap;gap:16px;justify-content:center;align-items:center;min-height:250px;
+    background:radial-gradient(120% 90% at 20% 0%,#3b5b8c 0%,transparent 55%),radial-gradient(100% 80% at 100% 100%,#6b3f78 0%,transparent 55%),#1a2236}
+  .stagew.lockbg{flex-direction:column;gap:10px;background:radial-gradient(120% 90% at 30% 0%,#25466e 0%,transparent 60%),radial-gradient(100% 80% at 100% 100%,#4a2a57 0%,transparent 55%),#0d1220}
+
+  .w{border-radius:22px;padding:14px;font-family:system-ui,-apple-system,sans-serif;font-variant-numeric:tabular-nums;box-shadow:0 8px 24px rgba(0,0,0,.25);overflow:hidden}
+  .w.dark{background:#111419;color:#e9ecf2;--muted:#8b92a3;--on:#34d399;--off:#fb7185;--seg-on:#1f4a3b;--seg-off:#fb7185;--fut:rgba(255,255,255,.07)}
+  .w.light{background:#fff;color:#15171c;--muted:#70747d;--on:#0f9f5a;--off:#dc3d43;--seg-on:#c9ead6;--seg-off:#e5484d;--fut:#ece9e2}
+  .w .dot{width:7px;height:7px;border-radius:50%;background:var(--c);display:inline-block;flex:none}
+  .w.dark .dot{box-shadow:0 0 8px var(--c)}
+  .w .on{--c:var(--on)} .w .off{--c:var(--off)}
+
+  .small{width:158px;height:158px;display:flex;flex-direction:column}
+  .wh{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700}
+  .wh .lg{width:13px;height:13px;border-radius:4px;background:linear-gradient(135deg,#34d399,#0ea5e9)}
+  .wh .upd{margin-left:auto;font-weight:500;font-size:10.5px;color:var(--muted)}
+  .wr{margin-top:auto}
+  .wr + .wr{margin-top:10px}
+  .wn{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted)}
+  .ws{font-size:17px;font-weight:600;letter-spacing:-.02em;margin-top:1px}
+  .ws span{color:var(--c);font-size:13px;margin-right:4px}
+
+  .medium{width:338px;height:158px;display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .mc{display:flex;flex-direction:column}
+  .mst{font-size:12px;font-weight:600;color:var(--c);margin-top:8px}
+  .mdur{font-size:28px;font-weight:600;letter-spacing:-.03em;line-height:1.05}
+  .msince{font-size:11px;color:var(--muted)}
+  .mbar{display:flex;gap:1.5px;height:7px;margin-top:auto;border-radius:4px;overflow:hidden}
+  .mbar i{display:block;height:100%;border-radius:2px}
+  .mbar .a{background:var(--seg-on)} .mbar .b{background:var(--seg-off)} .mbar .f{background:var(--fut)}
+  .mtoday{font-size:10.5px;color:var(--muted);margin-top:5px}
+  .mtoday b{color:inherit;font-weight:600;color:var(--tx,inherit)}
+
+  .lockclock{font-family:system-ui;font-weight:700;font-size:64px;letter-spacing:-.02em;color:rgba(255,255,255,.92);line-height:1}
+  .linline{font-family:system-ui;font-size:14px;font-weight:600;color:rgba(255,255,255,.88)}
+  .rect{width:172px;height:76px;border-radius:14px;padding:8px 10px;background:rgba(255,255,255,.14);backdrop-filter:blur(10px);color:#fff;font-family:system-ui;font-variant-numeric:tabular-nums;display:grid;gap:3px;align-content:center}
+  .rect .r{display:grid;grid-template-columns:14px 1fr auto;gap:5px;align-items:center;font-size:13px;font-weight:600}
+  .rect .r svg{width:13px;height:13px}
+  .rect .r .t{font-weight:700}
+  .rect .r.dim{opacity:.95}
+  .note{font-size:12px;color:var(--text-secondary);margin-top:6px}
+</style>
+
+<h2>iPhone widget: which sizes do you want?</h2>
+<p class="subtitle">Pick as many as you like. Every size follows the phone's light/dark mode, and tapping one opens the website. The durations count up live. The on/off status itself refreshes whenever iOS refreshes the widget, usually every 5–15 minutes.</p>
+
+<div class="cards wcards" data-multiselect>
+
+  <div class="card" data-choice="small" onclick="toggleSelect(this)">
+    <div class="stagew">
+      <div class="w small dark">
+        <div class="wh"><span class="lg"></span>Power<span class="upd">19:15</span></div>
+        <div class="wr on"><div class="wn"><span class="dot"></span>Apartment 1</div><div class="ws"><span>On</span>5h 12m</div></div>
+        <div class="wr off"><div class="wn"><span class="dot"></span>Apartment 2</div><div class="ws"><span>Off</span>2h 14m</div></div>
+      </div>
+      <div class="w small light">
+        <div class="wh"><span class="lg"></span>Power<span class="upd">19:15</span></div>
+        <div class="wr on"><div class="wn"><span class="dot"></span>Apartment 1</div><div class="ws"><span>On</span>5h 12m</div></div>
+        <div class="wr off"><div class="wn"><span class="dot"></span>Apartment 2</div><div class="ws"><span>Off</span>2h 14m</div></div>
+      </div>
+    </div>
+    <div class="card-body"><h3>Small · home screen</h3><p>Both apartments at a glance: on/off and for how long.</p></div>
+  </div>
+
+  <div class="card" data-choice="medium" onclick="toggleSelect(this)">
+    <div class="stagew" style="flex-direction:column">
+      <div class="w medium dark">
+        <div class="mc on"><div class="wn"><span class="dot"></span>Apartment 1</div><div class="mst">Power on</div><div class="mdur">5h 12m</div><div class="msince">since 14:03</div>
+          <div class="mbar"><i class="a" style="width:29%"></i><i class="b" style="width:12.8%"></i><i class="a" style="width:8.2%"></i><i class="b" style="width:8.5%"></i><i class="a" style="width:21.7%"></i><i class="f" style="width:19.8%"></i></div><div class="mtoday">Today off <b>5h 07m</b></div></div>
+        <div class="mc off"><div class="wn"><span class="dot"></span>Apartment 2</div><div class="mst">No power</div><div class="mdur">2h 14m</div><div class="msince">since 17:01</div>
+          <div class="mbar"><i class="a" style="width:37.6%"></i><i class="b" style="width:12.4%"></i><i class="a" style="width:20.9%"></i><i class="b" style="width:9.3%"></i><i class="f" style="width:19.8%"></i></div><div class="mtoday">Today off <b>5h 13m</b></div></div>
+      </div>
+      <div class="w medium light">
+        <div class="mc on"><div class="wn"><span class="dot"></span>Apartment 1</div><div class="mst">Power on</div><div class="mdur">5h 12m</div><div class="msince">since 14:03</div>
+          <div class="mbar"><i class="a" style="width:29%"></i><i class="b" style="width:12.8%"></i><i class="a" style="width:8.2%"></i><i class="b" style="width:8.5%"></i><i class="a" style="width:21.7%"></i><i class="f" style="width:19.8%"></i></div><div class="mtoday">Today off <b>5h 07m</b></div></div>
+        <div class="mc off"><div class="wn"><span class="dot"></span>Apartment 2</div><div class="mst">No power</div><div class="mdur">2h 14m</div><div class="msince">since 17:01</div>
+          <div class="mbar"><i class="a" style="width:37.6%"></i><i class="b" style="width:12.4%"></i><i class="a" style="width:20.9%"></i><i class="b" style="width:9.3%"></i><i class="f" style="width:19.8%"></i></div><div class="mtoday">Today off <b>5h 13m</b></div></div>
+      </div>
+    </div>
+    <div class="card-body"><h3>Medium · home screen</h3><p>Like the website's status cards: duration, since when, and today's 24h bar.</p></div>
+  </div>
+
+  <div class="card" data-choice="lock-rect" onclick="toggleSelect(this)">
+    <div class="stagew lockbg">
+      <div class="lockclock">19:15</div>
+      <div class="rect">
+        <div class="r"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg><span>Apt 1 · On</span><span class="t">5h 12m</span></div>
+        <div class="r dim"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/><path d="M3 3l18 18"/></svg><span>Apt 2 · Off</span><span class="t">2h 14m</span></div>
+      </div>
+    </div>
+    <div class="card-body"><h3>Lock screen · under the clock</h3><p>Two lines, shown in the lock screen's single color. You can check it without unlocking.</p></div>
+  </div>
+
+  <div class="card" data-choice="lock-inline" onclick="toggleSelect(this)">
+    <div class="stagew lockbg">
+      <div class="linline">⚡ Apt 1 on · ✕ Apt 2 off 2h 14m</div>
+      <div class="lockclock">19:15</div>
+    </div>
+    <div class="card-body"><h3>Lock screen · above the clock</h3><p>One short line in place of the date. The most compact option.</p></div>
+  </div>
+
+</div>
