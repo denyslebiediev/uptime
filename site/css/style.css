@@ -66,12 +66,15 @@
 
 /* tiles */
 .ui .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
-.ui .tile{border-radius:14px;padding:14px 16px}
+.ui .tile{border-radius:14px;padding:14px 16px;container:tile/inline-size}
 .ui .tile .l{font-size:11.5px;color:var(--muted)}
 .ui .tile .vs{display:grid;gap:2px;margin-top:8px}
-.ui .tile .v{display:flex;justify-content:space-between;align-items:baseline;font-size:19px;font-weight:600;letter-spacing:-.02em}
-.ui .tile .v em{font-style:normal;font-size:11px;color:var(--muted);font-weight:500;letter-spacing:0}
-.ui .tile .big{font-size:26px;font-weight:600;letter-spacing:-.02em;margin-top:8px}
+/* tiles are 126–200 px wide inside: a value too long to sit beside its name ("35 год 17 хв") drops below it, whole and right-aligned */
+.ui .tile .v{display:flex;flex-wrap:wrap;justify-content:flex-end;column-gap:8px;text-align:right;align-items:baseline;font-size:19px;font-weight:600;letter-spacing:-.02em}
+.ui .tile .v em{margin-right:auto;font-style:normal;font-size:11px;color:var(--muted);font-weight:500;letter-spacing:0}
+.ui .tile .big{font-size:26px;font-weight:600;letter-spacing:-.02em;margin-top:8px;white-space:nowrap}
+/* .tile is a named container (unnamed @container rules now see it, not .ui, for anything inside a tile); 22px fits "NN год NN хв" in the narrowest tile */
+@container tile (max-width:170px){.ui .tile .big{font-size:22px}}
 .ui .tile .l2{font-size:11px;color:var(--faint)}
 
 /* legend */
@@ -81,13 +84,14 @@
 
 /* 14-day timeline */
 .ui .tl{display:grid;gap:12px}
-.ui .tl-row,.ui .tl-ticks{display:grid;grid-template-columns:52px 1fr 116px;gap:12px;align-items:center}
+.ui .tl-row,.ui .tl-ticks{display:grid;grid-template-columns:52px 1fr 160px;gap:12px;align-items:center}
 .ui .tl-day{font-size:12px;color:var(--muted)}
 .ui .tl-day b{color:var(--text);font-weight:600}
 .ui .tl-tracks{display:grid;gap:4px}
 .ui .tt{display:grid;grid-template-columns:10px 1fr;gap:6px;align-items:center;font-size:9.5px;color:var(--faint)}
 .ui .tl .track{height:8px;border-radius:4px}
 .ui .tl-tot{display:grid;grid-template-columns:1fr 1fr;gap:8px;text-align:right;font-size:12px}
+.ui .tl-tot span{white-space:nowrap}
 .ui .tl-tot.h{font-size:10.5px;color:var(--faint)}
 .ui .tk{position:relative;height:14px;margin-left:16px;font-size:10.5px;color:var(--faint)}
 .ui .tk span{position:absolute;transform:translateX(-50%)}

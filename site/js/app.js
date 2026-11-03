@@ -4,6 +4,9 @@ import { getPref, setPref, initTheme } from './theme.js'
 import { pickLang, t } from './i18n.js'
 import { renderHeader } from './render/header.js'
 import { renderCards } from './render/cards.js'
+import { renderSummary, periodRange, firstSeen } from './render/summary.js'
+import { renderTimeline } from './render/timeline.js'
+import { initTooltip } from './render/tooltip.js'
 
 /**
  * What every render*(el, v) gets. `ev` is the merged /events data: from = earliest loaded `from`, to = now.
@@ -16,17 +19,22 @@ const $ = id => document.getElementById(id)
 const BASE = apiBase(location.search)
 let lang = pickLang(getPref('uptime.lang', ['uk', 'en']), navigator.languages ?? [])
 initTheme($('tseg'))
+initTooltip($('ui'), $('tip'))
 
 const S = {
   status: null, events: null, older: [], from0: null, loadedFrom: Infinity, okStatus: true, okEvents: true, clock: null,
-  statusOkAt: 0, triedStatus: -Infinity, triedEvents: -Infinity, period: 'week', offset: 0, filter: 'all', showAll: false,
+  statusOkAt: 0, triedStatus: -Infinity, triedEvents: -Infinity, period: 'week', offset: 0, filter: 'all', showAll: false, loading: false,
 }
-const SECTIONS = [[renderHeader, '.in'], [renderCards, '#cards']]
+const SECTIONS = [[renderHeader, '.in'], [renderCards, '#cards'], [renderSummary, '#summary'], [renderTimeline, '#days']]
+
+// server clock plus the monotonic time since its last good reply, so a wrong device clock does not matter
+const serverNow = () => S.clock ? Math.floor(S.clock.server + (performance.now() - S.clock.at) / 1000) : Math.floor(Date.now() / 1000)
+// an /events body also needs its rows and range, or every later render and poll would break on it
+const goodEvents = data => Array.isArray(data.iv) && Number.isFinite(data.from)
 
 /** @returns {View} */
 function view() {
-  // server clock plus the monotonic time since its last good reply, so a wrong device clock does not matter
-  const now = S.clock ? Math.floor(S.clock.server + (performance.now() - S.clock.at) / 1000) : Math.floor(Date.now() / 1000)
+  const now = serverNow()
   return {
     lang, now, ok: S.okStatus && S.okEvents, asOf: S.status?.now ?? S.events?.now ?? null,
     agoSec: Math.round((performance.now() - S.statusOkAt) / 1000), status: S.status,
@@ -56,8 +64,7 @@ async function poll(path) {
   const isStatus = path === '/status'
   if (isStatus) S.triedStatus = performance.now(); else S.triedEvents = performance.now()
   const { data, ok } = await loadWithFallback(BASE + path, isStatus ? S.status : S.events)
-  // an /events body also needs its rows and range, or every later render and poll would break on it
-  const good = ok && (isStatus || (Array.isArray(data.iv) && Number.isFinite(data.from)))
+  const good = ok && (isStatus || goodEvents(data))
   if (isStatus) S.okStatus = good; else S.okEvents = good // each endpoint owns its flag, so one cannot hide the other's failure
   if (good) {
     S.clock = { server: data.now, at: performance.now() }
@@ -66,6 +73,19 @@ async function poll(path) {
     }
   }
   render()
+}
+
+/** Loads older /events rows back to t (never before the first heartbeat), at most 400 days per request. */
+async function ensureFrom(t) {
+  if (!S.events || S.loading || t >= S.loadedFrom || S.loadedFrom <= firstSeen(S.events)) return
+  const from = Math.max(t, firstSeen(S.events), S.loadedFrom - 400 * 86400)
+  S.loading = true
+  const { data, ok } = await loadWithFallback(`${BASE}/events?from=${from}&to=${S.loadedFrom}`, null)
+  const good = ok && goodEvents(data)
+  if (good) { S.older = mergeIv(S.older, data.iv); S.loadedFrom = from }
+  S.okEvents = good; S.loading = false
+  render()
+  if (good) ensureFrom(periodRange(S.period, S.offset, serverNow()).start) // the user may have clicked again meanwhile
 }
 
 // The /events window grows from the first body's `from` instead of sliding, so loaded rows are never dropped.
@@ -84,6 +104,10 @@ function tick() {
 $('ui').addEventListener('click', e => {
   const b = e.target.closest('[data-l]')
   if (b) { setPref('uptime.lang', b.dataset.l); lang = b.dataset.l; render() }
+  const p = e.target.closest('[data-p]'), nav = e.target.closest('[data-nav]')
+  if (p) { S.period = p.dataset.p; S.offset = 0 }
+  if (nav) S.offset = Math.max(0, S.offset + Number(nav.dataset.nav))
+  if (p || nav) { ensureFrom(periodRange(S.period, S.offset, serverNow()).start); render() }
 })
 document.addEventListener('visibilitychange', tick)
 setInterval(tick, 1000)
