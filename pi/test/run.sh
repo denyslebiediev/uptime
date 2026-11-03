@@ -65,4 +65,19 @@ setup; FAKE_JOBS=''; out=$("$HB" stop 2>&1); rc=$?
 eq "stop: no shutdown job (crash/manual stop) is silent, sends and saves nothing" "$rc|$out|$(ls -A "$T/fake")|$(state)" "0|||"
 setup; FAKE_JOBS='42 reboot.target start waiting' FAKE_CURL_EXIT=7; "$HB" stop >/dev/null; rc=$?
 eq "stop: offline keeps the marker, exits 0" "$rc $(state)" "0 $B 12345.67 reboot"
+osrel() { printf 'PRETTY_NAME="%s"\nVERSION_CODENAME=%s\n' "$1" "$2" > "$T/os"; }
+for c in 'Debian GNU/Linux 13 (trixie)|trixie|trixie is supported' 'Debian GNU/Linux 12 (bookworm)|bookworm|bookworm is supported' \
+         'Raspbian GNU/Linux 11 (bullseye)|bullseye|bullseye is not bookworm or trixie: heartbeat only, no host-wide changes'; do
+  IFS='|' read -r name code want <<<"$c"
+  setup; osrel "$name" "$code"; out=$(UPTIME_HB_OS_RELEASE=$T/os "$PI/install.sh" --check); rc=$?
+  eq "install --check: $code" "$rc|$(sed -n 1p <<<"$out")|$(grep '^OS check: ' <<<"$out")" "0|OS:      $name|OS check: $want"
+done
+for c in 'ext4   ro,noatime' 'overlay rw,lowerdir=/media/root-ro'; do
+  setup; osrel 'Debian GNU/Linux 12 (bookworm)' bookworm; out=$(FAKE_FINDMNT=$c UPTIME_HB_OS_RELEASE=$T/os "$PI/install.sh" --check); rc=$?
+  eq "install --check: read-only root '$c' stops" "$rc|$(grep -c '^Root filesystem is read-only or an overlay' <<<"$out")" "1|1"
+done
+if [ "$(id -u)" != 0 ]; then   # never let the harness run the real installer as root
+  setup; osrel 'Debian GNU/Linux 13 (trixie)' trixie; out=$(UPTIME_HB_OS_RELEASE=$T/os "$PI/install.sh" 2>&1 </dev/null); rc=$?
+  eq "install: refuses without root" "$rc $(tail -n1 <<<"$out")" "1 Run with sudo: sudo ./install.sh"
+fi
 echo "$pass passed, $fail failed"; [ "$fail" = 0 ]

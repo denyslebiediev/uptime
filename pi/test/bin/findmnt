@@ -1,0 +1,3 @@
+#!/bin/bash
+# Fake findmnt: prints FAKE_FINDMNT when set, fails otherwise.
+[ -n "${FAKE_FINDMNT:-}" ] && echo "$FAKE_FINDMNT"
