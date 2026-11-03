@@ -56,5 +56,5 @@ export function renderEvents(section, v) {
   log.replaceChildren(
     h('div', { className: 'lr h' }, ...['col_apartment', 'col_off', 'col_back', 'col_duration', 'col_type'].map(x => h('span', null, t(v.lang, x)))),
     ...(rows.length ? (v.showAll ? rows : rows.slice(0, 8)).map(row) : [h('div', { className: 'lr' }, t(v.lang, 'no_data'))]),
-    !v.showAll && rows.length > 8 && h('button', { className: 'more' }, t(v.lang, 'show_all', { n: rows.length })))
+    ...(!v.showAll && rows.length > 8 ? [h('button', { className: 'more' }, t(v.lang, 'show_all', { n: rows.length }))] : []))
 }
