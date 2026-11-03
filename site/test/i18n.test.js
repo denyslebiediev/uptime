@@ -3,8 +3,8 @@ import assert from 'node:assert/strict'
 
 import { STRINGS, LOCALE, pickLang, t } from '../js/i18n.js'
 const ph = s => (s.match(/\{\w+\}/g) ?? []).sort()
-test('uk and en have the same 76 keys, no empty strings and the same placeholders', () => {
-  assert.deepEqual(Object.keys(STRINGS.uk).sort(), Object.keys(STRINGS.en).sort()); assert.equal(Object.keys(STRINGS.en).length, 76)
+test('uk and en have the same 78 keys, no empty strings and the same placeholders', () => {
+  assert.deepEqual(Object.keys(STRINGS.uk).sort(), Object.keys(STRINGS.en).sort()); assert.equal(Object.keys(STRINGS.en).length, 78)
   for (const k of Object.keys(STRINGS.en)) { assert.ok(STRINGS.en[k] && STRINGS.uk[k], k); assert.deepEqual(ph(STRINGS.uk[k]), ph(STRINGS.en[k]), k) }
 })
 test('spec-fixed copy and 24-hour locales uk-UA / en-GB', () => {

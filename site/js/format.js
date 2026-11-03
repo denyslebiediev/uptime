@@ -17,6 +17,10 @@ export const fmtDate = (ts, lang) => fmt(LOCALE[lang], { day: 'numeric', month: 
 export const fmtWeekday = (ts, lang) => fmt(LOCALE[lang], { weekday: 'short' }).format(ts * 1000)
 export const fmtMonth = (ts, lang) => fmt(LOCALE[lang], { month: 'long', year: 'numeric' }).format(ts * 1000)
 
+/** "14:05" when ts is on ref's Kyiv day, else "Sun 1 Nov, 23:59". */
+export const stamp = (ts, ref, lang) =>
+  periodBounds('day', ts).start === periodBounds('day', ref).start ? fmtTime(ts) : `${fmtDay(ts, lang)}, ${fmtTime(ts)}`
+
 /** @param {number} x 0...1 */
 export const fmtPct = (x, lang) => new Intl.NumberFormat(LOCALE[lang], { style: 'percent', minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(x)
 export const fmtNum = (x, lang, digits = 1) => new Intl.NumberFormat(LOCALE[lang], { maximumFractionDigits: digits }).format(x)
