@@ -11,7 +11,7 @@ const L = UK ? { brand: 'Світло', asOf: 'станом на', offline: 'о�
   noData: 'No data yet. Open Scriptable while online.', on: 'Power on', no_signal: 'No signal',
   rebooting: 'Rebooting', device_off: 'Switched off', stale: 'Check the device', unknown: 'Waiting for the first signal' }
 const dyn = (l, d) => Color.dynamic(new Color(l), new Color(d))
-const C = { bg: dyn('#ffffff', '#111419'), text: dyn('#15171c', '#e9ecf2'), muted: dyn('#70747d', '#8b92a3'),
+const C = { bg: dyn('#ffffff', '#111419'), text: dyn('#15171c', '#e9ecf2'), muted: dyn('#686c75', '#8b92a3'),
   on: dyn('#0f9f5a', '#34d399'), off: dyn('#dc3d43', '#fb7185'), warn: dyn('#e0a100', '#fbbf24') }
 const STATES = { on: ['bolt.fill', C.on], no_signal: ['bolt.slash.fill', C.off], rebooting: ['arrow.clockwise', C.muted],
   device_off: ['power', C.muted], stale: ['exclamationmark.triangle', C.warn], unknown: ['hourglass', C.muted] }

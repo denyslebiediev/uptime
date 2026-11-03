@@ -214,7 +214,7 @@ This requires a writable root filesystem, so the read-only overlay is **not** us
 |---|---|---|
 | bg | `#f3f1ec` | `#0a0c10` (+ soft green/rose radial washes) |
 | card | `#ffffff` | `#111419` |
-| text / muted / faint | `#15171c` / `#70747d` / `#a3a6ac` | `#e9ecf2` / `#8b92a3` / `#5b6272` |
+| text / muted / faint | `#15171c` / `#686c75` / `#a3a6ac` | `#e9ecf2` / `#8b92a3` / `#5b6272` |
 | status on (text, dot) | `#0f9f5a` | `#34d399` |
 | status off (text, dot) | `#dc3d43` | `#fb7185` |
 | track "power on" | `#c9ead6` | `#1f4a3b` |

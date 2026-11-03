@@ -1,6 +1,6 @@
 /* Ported from docs/superpowers/specs/mockups/site.html. Light (Daylight) is the default; <html data-mode=dark> switches to Midnight. */
 .ui{container-type:inline-size;position:relative;font-family:system-ui,-apple-system,"Inter","Segoe UI",sans-serif;font-variant-numeric:tabular-nums;color:var(--text);background:var(--wash),var(--bg);line-height:1.45;transition:background-color .3s,color .3s}
-:root{color-scheme:light;--bg:#f3f1ec;--card:#fff;--border:rgba(20,20,20,.07);--text:#15171c;--muted:#70747d;--faint:#a3a6ac;--pill:#e8e5de;--pill-on:#fff;
+:root{color-scheme:light;--bg:#f3f1ec;--card:#fff;--border:rgba(20,20,20,.07);--text:#15171c;--muted:#686c75;--faint:#a3a6ac;--pill:#e8e5de;--pill-on:#fff;
   --on:#0f9f5a;--off:#dc3d43;--seg-on:#c9ead6;--seg-off:#e5484d;--seg-net:#e0a100;--fut:repeating-linear-gradient(-45deg,#e7e3db 0 4px,#f2efe9 4px 8px);--series:#2a78d6;
   --shadow:0 1px 2px rgba(0,0,0,.04),0 12px 32px -16px rgba(0,0,0,.16);--ring:rgba(220,61,67,.28);
   --wash:radial-gradient(900px 340px at 12% -8%,rgba(15,159,90,.08),transparent 60%),radial-gradient(700px 300px at 100% 0%,rgba(220,61,67,.06),transparent 60%)}
