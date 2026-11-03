@@ -43,7 +43,7 @@ Success = the owner glances at the iPhone widget and trusts it, and the website'
 - **Pi has no real-time clock** (Pi 3/4; Pi 5 without battery) → the Pi's wall clock is never trusted; all timestamps are the Worker's receive time. After boot, HTTPS may fail with "certificate not yet valid" until NTP syncs (seconds); the 30 s retry loop absorbs it. Never use `curl -k`.
 - **Cloudflare Workers Paid plan** ($5/mo). DNS for `denyslebiediev.com` is already on Cloudflare.
 - **GitHub Pages, public repo** (free plan) → all code public; secrets never committed.
-- The GitHub user site has the custom domain `denyslebiediev.com`, so this project's site is served at **https://denyslebiediev.com/uptime/** → every asset path must be relative.
+- The site has its own custom domain **https://uptime.denyslebiediev.com/** (Cloudflare CNAME `uptime` → `denyslebiediev.github.io`, DNS only); the old `denyslebiediev.com/uptime/` address redirects there. Asset paths stay relative.
 - **Europe/Kyiv** time with DST (23 h and 25 h days). Older iOS knows only `Europe/Kiev`; fall back to it.
 - iOS decides when widgets refresh (realistically every 15–60 min) → the widget must say "as of HH:MM".
 - Lock-screen widgets are rendered in one color → state must be an icon + word, never color alone.
@@ -262,7 +262,7 @@ One Scriptable script (`uptime.js`), families **small**, **medium**, **accessory
 - Light/dark via `Color.dynamic`; the medium widget's 24 h bars (small has none, as in the mockup) drawn with `DrawContext` (`opaque = false`, `respectScreenScale = true`) using colors that read in both modes, from `day.start`/`day.end` and `today` segments supplied by the server (no time-zone math on the phone).
 - Lock screen (as in the mockup): two text rows, no bar — icon, **short name** from `/status` (`Центральна`/`Centralna`, `Райдужна`/`Rayduzhna`), state word, live duration; `addAccessoryWidgetBackground = true`.
 - Language from `Device.language()`: `uk` → Ukrainian labels and names, else English.
-- `widget.url` = `https://denyslebiediev.com/uptime/`; `refreshAfterDate` = now + 5 min.
+- `widget.url` = `https://uptime.denyslebiediev.com/`; `refreshAfterDate` = now + 5 min.
 - Install notes: copy the script into the Scriptable folder in iCloud Drive, add the widget, pick the script.
 
 ## 10. Security and privacy

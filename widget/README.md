@@ -14,7 +14,7 @@ Small, medium and lock-screen (rectangular) widget for the iPhone. It reads `GET
 | # | Action | Expected |
 |---|---|---|
 | 1 | Run `uptime` in Scriptable while online | Medium preview: icon, word, live duration, `since HH:MM`, a bar with a grey future part, `Today off …`, `as of HH:MM` = now in Kyiv time |
-| 2 | Add small, medium and lock-screen rectangular widgets; tap each one | Layout as in the mockup; lock screen: one row per apartment plus the `as of` line, no bar. Each tap opens `https://denyslebiediev.com/uptime/` |
+| 2 | Add small, medium and lock-screen rectangular widgets; tap each one | Layout as in the mockup; lock screen: one row per apartment plus the `as of` line, no bar. Each tap opens `https://uptime.denyslebiediev.com/` |
 | 3 | Add a large widget | `Use small, medium or lock-screen`, wrapped, no crash |
 | 4 | Watch for 2 min | Durations count up; `since` and `as of` stay fixed |
 | 5 | Switch light ↔ dark | Background and text switch; bar segments visible in both |

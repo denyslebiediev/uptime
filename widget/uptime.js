@@ -1,5 +1,5 @@
 // Power-cut tracker widget for Scriptable (https://docs.scriptable.app). Install: widget/README.md
-const API = 'https://uptime-api.denyslebiediev.com', SITE = 'https://denyslebiediev.com/uptime/', CACHE_FILE = 'uptime-status.json'
+const API = 'https://uptime-api.denyslebiediev.com', SITE = 'https://uptime.denyslebiediev.com/', CACHE_FILE = 'uptime-status.json'
 const COL = 138 // 2 × 138 + 16 fits the narrowest medium widget (321 pt, iPhone SE) minus 14 pt padding per side
 const UK = Device.language().startsWith('uk')
 const L = UK ? { brand: 'Світло', asOf: 'станом на', offline: 'офлайн', since: 'з', todayOff: 'Сьогодні без світла',

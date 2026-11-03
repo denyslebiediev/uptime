@@ -101,6 +101,6 @@ systemctl enable uptime-hb-shutdown.service uptime-hb.service
 systemctl start uptime-hb-shutdown.service
 rc=0; /usr/local/bin/uptime-hb once || rc=$?
 systemctl restart uptime-hb.service
-if [ "$rc" = 0 ]; then echo "Done. Open https://denyslebiediev.com/uptime/ — $dev should show \"Power on\" within a minute."
+if [ "$rc" = 0 ]; then echo "Done. Open https://uptime.denyslebiediev.com/ — $dev should show \"Power on\" within a minute."
 else echo 'See Troubleshooting in pi/README.md.'; fi
 exit "$rc"

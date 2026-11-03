@@ -2,7 +2,7 @@
 
 Power-cut tracker for two apartments. A Raspberry Pi in each sends a heartbeat every 30 s to a Cloudflare Worker, which derives power cuts, connection drops, reboots and switch-offs from them. A public page and an iOS widget show the result, all in Kyiv time.
 
-**Site:** https://denyslebiediev.com/uptime/ · **API:** https://uptime-api.denyslebiediev.com/status
+**Site:** https://uptime.denyslebiediev.com/ · **API:** https://uptime-api.denyslebiediev.com/status
 
 | Folder | What | Deploy |
 | --- | --- | --- |
