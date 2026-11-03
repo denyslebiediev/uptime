@@ -1,0 +1,18 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "uptime-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-11-03",
+  "observability": { "enabled": true },
+  "workers_dev": false,
+  "routes": [{ "pattern": "uptime-api.denyslebiediev.com", "custom_domain": true }],
+  // placeholder id until Task 5; read replication is opt-in, so it stays off
+  "d1_databases": [{ "binding": "DB", "database_name": "uptime", "database_id": "00000000-0000-0000-0000-000000000000", "migrations_dir": "migrations" }],
+  "ratelimits": [{ "name": "RATE_LIMITER", "namespace_id": "1001", "simple": { "limit": 120, "period": 60 } }],
+  // typed by `wrangler types`; a first deploy without them is refused
+  "secrets": { "required": ["TOKEN_CENTRALNA", "TOKEN_RAYDUZHNA"] },
+  "vars": { "DEVICES": [
+    { "id": "centralna", "name": { "uk": "Центральна 50", "en": "Centralna 50" }, "short": { "uk": "Центральна", "en": "Centralna" } },
+    { "id": "rayduzhna", "name": { "uk": "Райдужна 71", "en": "Rayduzhna 71" }, "short": { "uk": "Райдужна", "en": "Rayduzhna" } }
+  ] }
+}
