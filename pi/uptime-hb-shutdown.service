@@ -1,0 +1,19 @@
+[Unit]
+Description=Power-cut tracker shutdown marker
+Wants=network-online.target
+After=network-online.target
+Before=uptime-hb.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/bin/true
+ExecStop=/usr/local/bin/uptime-hb stop
+TimeoutStopSec=10
+StateDirectory=uptime-hb
+ProtectSystem=strict
+ProtectHome=yes
+NoNewPrivileges=yes
+
+[Install]
+WantedBy=multi-user.target

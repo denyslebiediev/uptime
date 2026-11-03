@@ -1,0 +1,68 @@
+#!/bin/bash
+# Power-cut tracker heartbeat: uptime-hb loop | once | stop
+set -u
+case ${1:-} in loop|once|stop) mode=$1 ;; *) echo "usage: uptime-hb loop|once|stop" >&2; exit 2 ;; esac
+
+ETC=${UPTIME_HB_ETC:-/etc/uptime-hb}
+STATE_DIR=${UPTIME_HB_STATE_DIR:-/var/lib/uptime-hb}
+PROC=${UPTIME_HB_PROC:-/proc}
+INTERVAL=${UPTIME_HB_INTERVAL:-30}
+# shellcheck source=/dev/null
+. "$ETC/env"
+: "${UPTIME_HB_URL:?not set in $ETC/env}"
+read -r boot < "$PROC/sys/kernel/random/boot_id"
+
+# Previous-boot report, read once; ignored unless the Worker would accept it (else it 400s the whole body).
+uuid_re='^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+up_re='^(0|[1-9][0-9]{0,8})([.][0-9]+)?$'
+prev=''
+read -r pb pu pc _ 2>/dev/null < "$STATE_DIR/state"
+if [ "${pb:-}" != "$boot" ] && [[ ${pb:-} =~ $uuid_re ]] && [[ ${pu:-} =~ $up_re ]] \
+  && [ "${pu%%.*}" -lt 320000000 ] && case ${pc:-} in none|reboot|poweroff) true ;; *) false ;; esac; then
+  prev=",\"pb\":\"$pb\",\"pu\":$pu,\"pc\":\"$pc\""
+fi
+
+# send MAX_TIME [EV]: sets $up, $err; returns curl's status
+send() {
+  read -r up _ < "$PROC/uptime"
+  local ev=''
+  [ -z "${2:-}" ] || ev=",\"ev\":\"$2\""
+  local body="{\"boot\":\"$boot\",\"up\":$up$ev$prev}"
+  err=$(curl -fsS --connect-timeout 5 --max-time "$1" -H @"$ETC/auth" -H 'Content-Type: application/json' --data "$body" "$UPTIME_HB_URL" 2>&1)
+}
+
+# save SHUTDOWN: atomic rewrite of the state line (only after a failed beat or on stop, to spare the SD card)
+save() {
+  local tmp
+  tmp=$(mktemp "$STATE_DIR/.state.XXXXXX") || return
+  echo "$boot $up $1" > "$tmp"
+  mv -f "$tmp" "$STATE_DIR/state"
+}
+
+beat() {
+  send 10; rc=$?
+  [ "$rc" = 0 ] || save none
+  if [ "$rc" = 0 ]; then msg='heartbeat ok'; else msg="heartbeat failing: $err"; fi
+}
+
+case $mode in
+  once) beat; echo "$msg"; exit "$rc" ;;
+  loop)
+    last=''
+    while :; do
+      beat
+      [ "$rc" = 0 ] && cur=ok || cur=failing
+      if [ "$cur" != "$last" ]; then echo "$msg"; last=$cur; fi
+      sleep "$INTERVAL"
+    done ;;
+  stop)
+    case $(systemctl list-jobs --no-legend 2>/dev/null) in
+      *reboot.target*|*kexec.target*) ev=reboot ;;
+      *poweroff.target*|*halt.target*) ev=poweroff ;;
+      *) exit 0 ;;
+    esac
+    read -r up _ < "$PROC/uptime"
+    save "$ev"  # first, so the marker survives being offline
+    if send 5 "$ev"; then echo "shutdown marker $ev sent"; else echo "shutdown marker $ev saved, not sent: $err"; fi
+    exit 0 ;;
+esac

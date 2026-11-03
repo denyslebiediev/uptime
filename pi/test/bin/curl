@@ -1,0 +1,16 @@
+#!/bin/bash
+# Fake curl: records call N and exits with the Nth word of FAKE_CURL_EXIT.
+n=$(( $(cat "$FAKE_DIR/n" 2>/dev/null || echo 0) + 1 ))
+echo "$n" > "$FAKE_DIR/n"
+printf '%s\n' "$@" > "$FAKE_DIR/argv.$n"
+while [ $# -gt 0 ]; do
+  if [ "$1" = --data ]; then printf '%s' "$2" > "$FAKE_DIR/body.$n"; fi
+  shift
+done
+# word splitting of FAKE_CURL_EXIT is intended
+# shellcheck disable=SC2206
+codes=(${FAKE_CURL_EXIT:-0})
+i=$((n - 1)); [ "$i" -ge "${#codes[@]}" ] && i=$((${#codes[@]} - 1))
+code=${codes[$i]}
+[ "$code" = 0 ] || echo "curl: ($code) fake error" >&2
+exit "$code"

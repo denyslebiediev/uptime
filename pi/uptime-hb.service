@@ -1,0 +1,16 @@
+[Unit]
+Description=Power-cut tracker heartbeat
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+ExecStart=/usr/local/bin/uptime-hb loop
+Restart=always
+RestartSec=5
+StateDirectory=uptime-hb
+ProtectSystem=strict
+ProtectHome=yes
+NoNewPrivileges=yes
+
+[Install]
+WantedBy=multi-user.target

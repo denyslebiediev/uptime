@@ -1,0 +1,4 @@
+#!/bin/bash
+# Fake systemctl: any subcommand prints FAKE_JOBS (if set) and succeeds.
+[ -z "${FAKE_JOBS:-}" ] || echo "$FAKE_JOBS"
+exit 0
