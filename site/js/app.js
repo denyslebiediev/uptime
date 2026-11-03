@@ -6,6 +6,9 @@ import { renderHeader } from './render/header.js'
 import { renderCards } from './render/cards.js'
 import { renderSummary, periodRange, firstSeen } from './render/summary.js'
 import { renderTimeline } from './render/timeline.js'
+import { renderBars } from './render/bars.js'
+import { renderHeatmap } from './render/heatmap.js'
+import { renderEvents, downloadCsv } from './render/events.js'
 import { initTooltip } from './render/tooltip.js'
 
 /**
@@ -25,7 +28,8 @@ const S = {
   status: null, events: null, older: [], from0: null, loadedFrom: Infinity, okStatus: true, okEvents: true, clock: null,
   statusOkAt: 0, triedStatus: -Infinity, triedEvents: -Infinity, period: 'week', offset: 0, filter: 'all', showAll: false, loading: false,
 }
-const SECTIONS = [[renderHeader, '.in'], [renderCards, '#cards'], [renderSummary, '#summary'], [renderTimeline, '#days']]
+const SECTIONS = [[renderHeader, '.in'], [renderCards, '#cards'], [renderSummary, '#summary'], [renderTimeline, '#days'],
+  [renderBars, '#sm'], [renderHeatmap, '#heat'], [renderEvents, '#events']]
 
 // server clock plus the monotonic time since its last good reply, so a wrong device clock does not matter
 const serverNow = () => S.clock ? Math.floor(S.clock.server + (performance.now() - S.clock.at) / 1000) : Math.floor(Date.now() / 1000)
@@ -88,6 +92,18 @@ async function ensureFrom(t) {
   if (good) ensureFrom(periodRange(S.period, S.offset, serverNow()).start) // the user may have clicked again meanwhile
 }
 
+/** Downloads the whole history as CSV; if that fetch fails, the loaded range, with the offline banner saying why. */
+async function exportCsv() {
+  const v = view()
+  if (!v.ev) return
+  // shortcut: the API caps a range at 400 days, so after 13 months the CSV holds the last 400; fetch in 400-day chunks then.
+  const from = Math.max(firstSeen(v.ev), v.now - 400 * 86400)
+  const { data, ok } = await loadWithFallback(`${BASE}/events?from=${from}&to=${v.now}`, null)
+  const good = ok && goodEvents(data)
+  downloadCsv(good ? data : v.ev, lang)
+  if (!good) { S.okEvents = false; render() } // tick retries /events within 30 s; a good reply clears the banner
+}
+
 // The /events window grows from the first body's `from` instead of sliding, so loaded rows are never dropped.
 const eventsPath = () => (S.from0 === null ? '/events' : `/events?from=${S.from0}`)
 
@@ -108,6 +124,11 @@ $('ui').addEventListener('click', e => {
   if (p) { S.period = p.dataset.p; S.offset = 0 }
   if (nav) S.offset = Math.max(0, S.offset + Number(nav.dataset.nav))
   if (p || nav) { ensureFrom(periodRange(S.period, S.offset, serverNow()).start); render() }
+  const f = e.target.closest('[data-f]'), more = e.target.closest('.more')
+  if (f) { S.filter = f.dataset.f; S.showAll = false }
+  if (more) S.showAll = true
+  if (f || more) render()
+  if (e.target.closest('#csv')) exportCsv()
 })
 document.addEventListener('visibilitychange', tick)
 setInterval(tick, 1000)

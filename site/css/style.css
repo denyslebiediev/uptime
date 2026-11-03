@@ -126,7 +126,7 @@
 .ui .lr{display:grid;grid-template-columns:1.2fr 1.4fr .9fr .9fr 1fr;gap:12px;align-items:center;padding:11px 2px;border-top:1px solid var(--border);font-size:13px}
 .ui .lr.h{border-top:0;padding-top:0;font-size:11.5px;color:var(--muted)}
 .ui .lr .k{display:none;font-style:normal;color:var(--muted);margin-right:6px;font-size:11.5px}
-.ui .pill{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:999px}
+.ui .pill{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:999px;white-space:nowrap}
 .ui .pill.off{color:var(--off);background:color-mix(in srgb,var(--off) 13%,transparent)}
 .ui .pill.net{color:color-mix(in srgb,var(--seg-net) 70%,var(--text));background:color-mix(in srgb,var(--seg-net) 15%,transparent)}
 .ui .pill.reboot{color:var(--muted);background:var(--pill)}
@@ -149,7 +149,9 @@
   .ui .tl-tot{display:none}
   .ui .sh .right{margin-left:0}
   .ui .pnav span{min-width:120px}
-  .ui .lr{grid-template-columns:1fr 1fr auto;grid-template-areas:"apt apt type" "off back dur";row-gap:5px}
+  /* the pill spans the Back column too, so "Відключення світла" never squeezes Off/Back; a value too long to sit beside its label drops below it, whole */
+  .ui .lr{grid-template-columns:1fr 1fr auto;grid-template-areas:"apt type type" "off back dur";row-gap:5px}
+  .ui .c-off,.ui .c-back{display:flex;flex-wrap:wrap}
   .ui .lr.h{display:none}
   .ui .lr .k{display:inline}
   .ui .c-apt{grid-area:apt;font-weight:600} .ui .c-type{grid-area:type;justify-self:end} .ui .c-off{grid-area:off} .ui .c-back{grid-area:back} .ui .c-dur{grid-area:dur;justify-self:end;color:var(--muted)}
@@ -168,4 +170,6 @@ body{margin:0;background:var(--bg)}
 .ui .sg.nd{background:var(--fut);box-shadow:none}
 .ui button:focus-visible{outline:2px solid var(--series);outline-offset:2px}
 .ui .pnav button:disabled{opacity:.35;cursor:default}
+.ui .bars i{min-height:2px}
+.ui .bars i.none{background:var(--border)}
 @media (prefers-reduced-motion:reduce){.ui *,.ui *::before{animation:none!important;transition:none!important}}
