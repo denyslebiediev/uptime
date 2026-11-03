@@ -1,6 +1,6 @@
 // DOM helpers plus the header: live pulse, offline banner and headline sentence.
 import { t } from '../i18n.js'
-import { fmtDuration, stamp } from '../format.js'
+import { fmtDuration, fmtDays, stamp } from '../format.js'
 
 /** @typedef {import('../api.js').StatusDevice} StatusDevice */
 
@@ -36,8 +36,8 @@ export function headline(devices, now, lang) {
     const name = d.name[lang]
     if (d.state === 'on') return { text: t(lang, 'lede_on', { name }), tone: 'ok' }
     if (d.state === 'no_signal') {
-      const key = d.flags.includes('stale') ? 'lede_stale' : 'lede_no_signal'
-      return { text: t(lang, key, { name, dur: fmtDuration(now - d.since, lang) }), tone: 'bad' }
+      const stale = d.flags.includes('stale')
+      return { text: t(lang, stale ? 'lede_stale' : 'lede_no_signal', { name, dur: (stale ? fmtDays : fmtDuration)(now - d.since, lang) }), tone: 'bad' }
     }
     return { text: t(lang, `lede_${d.state}`, { name }), tone: '' }
   })

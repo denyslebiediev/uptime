@@ -33,7 +33,7 @@ case $fstype:$opts in
   overlay:*|*:ro|*:ro,*)
     echo 'Root filesystem is read-only or an overlay; the state file needs a writable root (spec §6.3).'
     echo 'Overlay: sudo raspi-config nonint do_overlayfs 1 && sudo reboot'
-    echo 'Read-only fstab: remove "ro" from the / line in /etc/fstab, then reboot.'
+    echo 'Read-only fstab: sudo mount -o remount,rw /, then in /etc/fstab change ro to rw (or defaults) in the options of the / line, then reboot.'
     echo 'Then run this installer again.'
     exit 1 ;;
 esac

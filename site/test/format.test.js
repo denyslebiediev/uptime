@@ -1,7 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 
-import { fmtDuration, fmtTime, fmtDay, fmtDate, fmtWeekday, fmtMonth, fmtPct, fmtNum, fmtWhen, fmtPeriod } from '../js/format.js'
+import { fmtDuration, fmtDays, fmtTime, fmtDay, fmtDate, fmtWeekday, fmtMonth, fmtPct, fmtNum, fmtWhen, fmtPeriod } from '../js/format.js'
 import { kyivTime as K, periodBounds } from '../js/time.js'
 const U = (...a) => Date.UTC(...a) / 1000
 test('durations read "5h 12m" / "5 год 12 хв", minutes floored and zero-padded after hours', () => {
@@ -36,4 +36,9 @@ test('fmtPeriod labels a day, an ISO week (end exclusive) and a month', () => {
   assert.equal(fmtPeriod('week', periodBounds('week', K(2026, 11, 1)), now, 'en'), '26 Oct – 1 Nov')
   assert.equal(fmtPeriod('month', periodBounds('month', now), now, 'en'), 'November 2026 · so far')
   assert.equal(fmtPeriod('month', periodBounds('month', K(2026, 10, 5)), now, 'uk'), 'жовтень 2026 р.')
+})
+test('fmtDays: whole days, floored, with uk / en plurals', () => {
+  const D = 86400
+  assert.equal(fmtDays(D, 'uk'), '1 день'); assert.equal(fmtDays(3 * D, 'uk'), '3 дні'); assert.equal(fmtDays(5 * D, 'uk'), '5 днів'); assert.equal(fmtDays(21 * D, 'uk'), '21 день')
+  assert.equal(fmtDays(3 * D + 86399, 'uk'), '3 дні'); assert.equal(fmtDays(D, 'en'), '1 day'); assert.equal(fmtDays(3 * D, 'en'), '3 days')
 })

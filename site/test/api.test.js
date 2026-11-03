@@ -1,7 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 
-import { API_DEFAULT, apiBase, loadWithFallback, mergeIv } from '../js/api.js'
+import { API_DEFAULT, apiBase, loadWithFallback, mergeIv, liveChanged } from '../js/api.js'
 const last = { now: 1793621100, devices: [] }, fresh = { now: 1793621130, devices: [] }, reply = (status, json) => async () => ({ ok: status >= 200 && status < 300, status, json })
 test('apiBase accepts only a local http override', () => {
   assert.equal(apiBase(''), API_DEFAULT); assert.equal(apiBase('?api=http://localhost:8787'), 'http://localhost:8787'); assert.equal(apiBase('?api=http://127.0.0.1:8787'), 'http://127.0.0.1:8787')
@@ -20,4 +20,9 @@ test('mergeIv: one copy of rows in both ranges, recent wins, open rows only from
   const a = ['centralna', 'power_off', 100, 200, []], a2 = ['centralna', 'power_off', 100, 210, []], b = ['rayduzhna', 'no_connection', 300, 400, []], c = ['centralna', 'power_off', 50, 60, []]
   assert.deepEqual(mergeIv([a, c], [a2, b]), [c, a2, b])
   const p = ['rayduzhna', 'power_off', 300, 900, []]; assert.deepEqual(mergeIv([['rayduzhna', 'no_signal', 300, null, ['provisional']]], [p]), [p]) // that cut has ended since
+})
+test('liveChanged: a state or since that differs from /events means its open rows are out of date', () => {
+  const dev = (state, since) => ({ id: 'centralna', state, since }), ev = { devices: [dev('no_signal', 100)] }
+  assert.equal(liveChanged({ devices: [dev('no_signal', 100)] }, ev), false); assert.equal(liveChanged({ devices: [dev('on', 200)] }, ev), true)
+  assert.equal(liveChanged({ devices: [dev('no_signal', 160)] }, ev), true); assert.equal(liveChanged({ devices: [{ ...dev('on', 200), id: 'rayduzhna' }] }, ev), false)
 })

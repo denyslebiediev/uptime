@@ -31,7 +31,7 @@ async function load() {
     return { data, offline: false }
   } catch (e) {
     if (!fm.fileExists(file)) return null
-    return { data: JSON.parse(fm.readString(file)), offline: true }
+    try { return { data: JSON.parse(fm.readString(file)), offline: true } } catch (_) { return null } // a cut-off cache write shows "No data yet", not a SyntaxError
   }
 }
 

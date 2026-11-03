@@ -52,10 +52,11 @@ export function renderCards(el, v) {
   const { day, devices } = v.status, week = periodBounds('week', v.now)
   el.replaceChildren(...devices.map(d => {
     const s = stateView(d, v.now, v.lang), name = d.name[v.lang]
+    const none = d.state === 'unknown' // never reported: a dash, not a confident 0m (Review Focus 2)
     const segs = d.today.map(([a, b, kind]) => ({ kind, start: a, end: b ?? v.now, ongoing: b === null, flags: [] }))
     // until /events loads, a device with no heartbeats must not be drawn as powered
     const firstSeen = v.ev ? v.ev.devices.find(x => x.id === d.id)?.first_seen ?? null : d.state === 'unknown' ? null : day.start
-    const weekOff = v.ev ? fmtDuration(periodStats(v.ev, d.id, week.start, week.end).off, v.lang) : '—'
+    const weekOff = v.ev && !none ? fmtDuration(periodStats(v.ev, d.id, week.start, week.end).off, v.lang) : '—'
     return h('div', { className: `scard ${s.tone}` },
       h('div', { className: 'row' }, h('span', { className: 'dot' }), name),
       h('div', { className: 'state' }, icon(s.icon), s.word, s.note && h('small', null, s.note)),
@@ -63,7 +64,7 @@ export function renderCards(el, v) {
       track(segs, day.start, day.end, v.now, name, v.lang, firstSeen),
       h('div', { className: 'ticks' }, ...['00', '06', '12', '18', '24'].map(x => h('span', null, x))),
       h('div', { className: 'mini' },
-        h('span', null, t(v.lang, 'today_off'), ' ', h('b', null, fmtDuration(dayOff(segs), v.lang))),
+        h('span', null, t(v.lang, 'today_off'), ' ', h('b', null, none ? '—' : fmtDuration(dayOff(segs), v.lang))),
         h('span', null, t(v.lang, 'week_off'), ' ', h('b', null, weekOff))))
   }))
 }

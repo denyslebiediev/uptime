@@ -15,7 +15,8 @@ test('headline variants: both on, one silent (spec example), both silent, stale,
   assert.equal(text(headline([on(C), silent], N, 'uk')), "Центральна 50: світло є. Райдужна 71: немає зв'язку 2 год 14 хв — ймовірно, немає світла.")
   assert.deepEqual(headline([on(C), silent], N, 'en').map(p => p.tone), ['ok', 'bad'])
   assert.deepEqual(headline([{ ...C, state: 'no_signal', since: N - 600 }, silent], N, 'en'), [{ text: 'No signal from either apartment — probably a power cut.', tone: 'bad' }])
-  assert.equal(text(headline([stale], N, 'en')), 'Centralna 50: no signal for 72h 00m — check the device.')
+  assert.equal(text(headline([stale], N, 'en')), 'Centralna 50: no signal for 3 days — check the device.')
+  assert.equal(text(headline([stale], N, 'uk')), "Центральна 50: немає зв'язку 3 дні — перевірте пристрій.")
   assert.equal(text(headline([{ ...C, state: 'rebooting', since: N - 60 }], N, 'en')), 'Centralna 50 is rebooting.'); assert.equal(text(headline([{ ...C, state: 'device_off', since: N - 60 }], N, 'en')), 'Centralna 50: the device is switched off.')
 })
 test('a device with no heartbeats yet renders without crashing', () => {

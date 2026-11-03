@@ -65,6 +65,12 @@ setup; FAKE_JOBS=''; out=$("$HB" stop 2>&1); rc=$?
 eq "stop: no shutdown job (crash/manual stop) is silent, sends and saves nothing" "$rc|$out|$(ls -A "$T/fake")|$(state)" "0|||"
 setup; FAKE_JOBS='42 reboot.target start waiting' FAKE_CURL_EXIT=7; "$HB" stop >/dev/null; rc=$?
 eq "stop: offline keeps the marker, exits 0" "$rc $(state)" "0 $B 12345.67 reboot"
+setup; echo "$P 500.25 none" > "$T/state/state"; FAKE_CURL_EXIT=7; "$HB" once >/dev/null
+eq "failed beat keeps an undelivered prev report" "$(state)" "$P 500.25 none"
+setup; echo "$P 500.25 none" > "$T/state/state"; "$HB" once >/dev/null
+eq "first good beat replaces the delivered prev report" "$(state)" "$B 12345.67 none"
+setup; echo "$P 500.25 none" > "$T/state/state"; FAKE_JOBS='42 reboot.target start waiting' FAKE_CURL_EXIT=7; "$HB" stop >/dev/null
+eq "offline stop keeps an undelivered prev report" "$(state)" "$P 500.25 none"
 osrel() { printf 'PRETTY_NAME="%s"\nVERSION_CODENAME=%s\n' "$1" "$2" > "$T/os"; }
 for c in 'Debian GNU/Linux 13 (trixie)|trixie|trixie is supported' 'Debian GNU/Linux 12 (bookworm)|bookworm|bookworm is supported' \
          'Raspbian GNU/Linux 11 (bullseye)|bullseye|bullseye is not bookworm or trixie: heartbeat only, no host-wide changes'; do

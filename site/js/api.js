@@ -42,3 +42,9 @@ export function mergeIv(older, recent) {
   for (const r of recent) rows.set(key(r), r)
   return [...rows.values()].sort((a, b) => a[2] - b[2])
 }
+
+/** True when /status has moved on from an /events body: a device's state or since differs, so its open rows are out of date. */
+export const liveChanged = (status, events) => status.devices.some(d => {
+  const e = events.devices.find(x => x.id === d.id)
+  return e !== undefined && (e.state !== d.state || e.since !== d.since)
+})

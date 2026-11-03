@@ -8,7 +8,7 @@ export function initTooltip(root, tip) {
     if (!el) return hide()
     const R = root.getBoundingClientRect()
     tip.textContent = el.dataset.tip
-    tip.style.left = `${Math.min(Math.max(e.clientX - R.left, tip.offsetWidth / 2 + 8), R.width - tip.offsetWidth / 2 - 8)}px`
+    tip.style.left = `${Math.max(tip.offsetWidth / 2 + 8, Math.min(e.clientX - R.left, R.width - tip.offsetWidth / 2 - 8))}px`
     tip.style.top = `${e.clientY - R.top}px`; tip.style.opacity = '1'
   }
   root.addEventListener('pointermove', show)

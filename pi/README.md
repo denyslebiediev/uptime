@@ -21,8 +21,8 @@ Hardware: a high-endurance SD card; Ethernet preferred.
    echo 'deb [signed-by=/usr/share/keyrings/cloudflare-main.gpg] https://pkg.cloudflare.com/cloudflared any main' | sudo tee /etc/apt/sources.list.d/cloudflared.list
    sudo apt-get update && sudo apt-get install -y cloudflared
    ```
-4. Zero Trust → Networking → Tunnels → Create a tunnel. Run only the `sudo cloudflared service install <TUNNEL_TOKEN>` line the dashboard shows, and wait for the status `Healthy`. Then Routes → Add route → Published application → `<ssh-hostname>`, Service `SSH`, `localhost:22`. (Source: developers.cloudflare.com, cloudflare-tunnel/use-cases/ssh/ssh-cloudflared-authentication/.)
-5. Zero Trust → Access controls → Applications → Create new application → Self-hosted and private → public hostname `<ssh-hostname>`, policy Allow with Include Emails `<owner-email>`.
+4. Zero Trust → Networking → Tunnels → Create a tunnel. Run only the `sudo cloudflared service install <TUNNEL_TOKEN>` line the dashboard shows, and wait for the status `Healthy`.
+5. Zero Trust → Access controls → Applications → Create new application → Self-hosted and private → public hostname `<ssh-hostname>`, policy Allow with Include Emails `<owner-email>`. Only then, back in the tunnel: Routes → Add route → Published application → `<ssh-hostname>`, Service `SSH`, `localhost:22` (the route makes SSH reachable, so the Access application must exist first). (Source: developers.cloudflare.com, cloudflare-tunnel/use-cases/ssh/ssh-cloudflared-authentication/.)
 6. On the laptop: `brew install cloudflared`, then in `~/.ssh/config`:
    ```
    Host <ssh-hostname>
@@ -55,6 +55,6 @@ To rotate a token: `openssl rand -hex 32`, then `npx wrangler secret put TOKEN_<
 Logs: `journalctl -u uptime-hb -u uptime-hb-shutdown -b` (with a volatile journal, earlier boots are gone).
 
 - `curl: (60)` / "certificate is not yet valid": the clock is not synced yet. It normally clears within seconds. If it persists, run `timedatectl timesync-status`; if NTP is slow or blocked, optionally add `/etc/systemd/timesyncd.conf.d/uptime-hb.conf` containing `[Time]` and `NTP=time.cloudflare.com`, then `sudo systemctl restart systemd-timesyncd`. Never use `-k`.
-- `(22) … 401`: wrong token; re-run the installer and paste this device's token. `(22) … 409`: a stale packet; it clears on the next beat. `(6)`/`(7)`/`(28)`: no internet; this is logged once, and the state file keeps the last time the Pi was known alive.
+- `(22) … 401`: wrong token; re-run the installer and paste this device's token. `(22) … 409` on every beat: this Pi's boot is older than the newest span stored for its token, so nothing is recorded. Either another Pi uses this token, or a test span is left in D1. Fix the token on the wrong Pi (re-run the installer with that device's own token) or delete the test span, then reboot this Pi. `(6)`/`(7)`/`(28)`: no internet; this is logged once, and the state file keeps the last time the Pi was known alive.
 - Wi-Fi comes back about 5 minutes after the router: answer yes to "Wi-Fi reconnect forever".
 - Secrets: `/etc/uptime-hb/auth` and tunnel tokens never go into git.

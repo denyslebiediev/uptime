@@ -21,6 +21,7 @@ if [ "${pb:-}" != "$boot" ] && [[ ${pb:-} =~ $uuid_re ]] && [[ ${pu:-} =~ $up_re
   && [ "${pu%%.*}" -lt 320000000 ] && case ${pc:-} in none|reboot|poweroff) true ;; *) false ;; esac; then
   prev=",\"pb\":\"$pb\",\"pu\":$pu,\"pc\":\"$pc\""
 fi
+held=$prev  # that report stays on disk until this boot first reaches the Worker (spec §6.3)
 
 # send MAX_TIME [EV]: sets $up, $err; returns curl's status
 send() {
@@ -31,17 +32,16 @@ send() {
   err=$(curl -fsS --connect-timeout 5 --max-time "$1" -H @"$ETC/auth" -H 'Content-Type: application/json' --data "$body" "$UPTIME_HB_URL" 2>&1)
 }
 
-# save SHUTDOWN: atomic rewrite of the state line (only after a failed beat or on stop, to spare the SD card)
+# save SHUTDOWN: atomic rewrite of the state line (after a failed beat, once when the first good beat delivers a held report, and on stop, to spare the SD card)
 save() {
   local tmp
   tmp=$(mktemp "$STATE_DIR/.state.XXXXXX") || return
-  echo "$boot $up $1" > "$tmp"
-  mv -f "$tmp" "$STATE_DIR/state"
+  if echo "$boot $up $1" > "$tmp"; then mv -f "$tmp" "$STATE_DIR/state"; else rm -f "$tmp"; fi  # a full disk must not blank the last good line
 }
 
 beat() {
   send 10; rc=$?
-  [ "$rc" = 0 ] || save none
+  if [ "$rc" = 0 ]; then [ -z "$held" ] || { held=''; save none; }; elif [ -z "$held" ]; then save none; fi
   if [ "$rc" = 0 ]; then msg='heartbeat ok'; else msg="heartbeat failing: $err"; fi
 }
 
@@ -62,7 +62,8 @@ case $mode in
       *) exit 0 ;;
     esac
     read -r up _ < "$PROC/uptime"
-    save "$ev"  # first, so the marker survives being offline
-    if send 5 "$ev"; then echo "shutdown marker $ev sent"; else echo "shutdown marker $ev saved, not sent: $err"; fi
+    # first, so the marker survives being offline, unless the file still holds a report this boot never delivered
+    [ -n "$prev" ] || save "$ev"
+    if send 5 "$ev"; then [ -z "$prev" ] || save "$ev"; echo "shutdown marker $ev sent"; else echo "shutdown marker $ev not sent: $err"; fi
     exit 0 ;;
 esac

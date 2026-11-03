@@ -11,6 +11,13 @@ export function fmtDuration(sec, lang) {
   return h > 0 ? (lang === 'uk' ? `${h} ${hu} ${z(m % 60)} ${mu}` : `${h}${hu} ${z(m % 60)}${mu}`) : (lang === 'uk' ? `${m} ${mu}` : `${m}${mu}`)
 }
 
+const DAYS = { uk: { one: 'день', few: 'дні', many: 'днів', other: 'дня' }, en: { one: 'day', other: 'days' } }
+/** Whole days, floored, for the stale headline (spec §5.4): "3 days" / "3 дні". */
+export function fmtDays(sec, lang) {
+  const n = Math.floor(Math.max(0, sec) / 86400), forms = DAYS[lang]
+  return `${n} ${forms[new Intl.PluralRules(LOCALE[lang]).select(n)] ?? forms.other}`
+}
+
 export const fmtTime = ts => fmt('en-GB', { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(ts * 1000)
 export const fmtDay = (ts, lang) => fmt(LOCALE[lang], { weekday: 'short', day: 'numeric', month: 'short' }).format(ts * 1000)
 export const fmtDate = (ts, lang) => fmt(LOCALE[lang], { day: 'numeric', month: 'short' }).format(ts * 1000)

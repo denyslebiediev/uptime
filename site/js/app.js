@@ -1,5 +1,5 @@
 // Boot, polling, state and re-rendering. Every renderer rebuilds its part of the page from one View.
-import { apiBase, loadWithFallback, mergeIv } from './api.js'
+import { apiBase, loadWithFallback, mergeIv, liveChanged } from './api.js'
 import { getPref, setPref, initTheme } from './theme.js'
 import { pickLang, t } from './i18n.js'
 import { renderHeader } from './render/header.js'
@@ -26,7 +26,7 @@ initTooltip($('ui'), $('tip'))
 
 const S = {
   status: null, events: null, older: [], from0: null, loadedFrom: Infinity, okStatus: true, okEvents: true, clock: null,
-  statusOkAt: 0, triedStatus: -Infinity, triedEvents: -Infinity, period: 'week', offset: 0, filter: 'all', showAll: false, loading: false,
+  statusOkAt: 0, wallAt: Date.now(), triedStatus: -Infinity, triedEvents: -Infinity, period: 'week', offset: 0, filter: 'all', showAll: false, loading: false,
 }
 const SECTIONS = [[renderHeader, '.in'], [renderCards, '#cards'], [renderSummary, '#summary'], [renderTimeline, '#days'],
   [renderBars, '#sm'], [renderHeatmap, '#heat'], [renderEvents, '#events']]
@@ -72,11 +72,16 @@ async function poll(path) {
   if (isStatus) S.okStatus = good; else S.okEvents = good // each endpoint owns its flag, so one cannot hide the other's failure
   if (good) {
     S.clock = { server: data.now, at: performance.now() }
-    if (isStatus) { S.status = data; S.statusOkAt = S.clock.at } else {
+    if (isStatus) {
+      // the open /events rows go wrong the moment a state changes: refresh them on the next tick, not in up to 5 min
+      if (S.events && liveChanged(data, S.events)) S.triedEvents = -Infinity
+      S.status = data; S.statusOkAt = S.clock.at
+    } else {
       S.events = data; S.from0 ??= data.from; S.loadedFrom = Math.min(S.loadedFrom, data.from)
     }
   }
   render()
+  if (good && !isStatus) ensureFrom(periodRange(S.period, S.offset, serverNow()).start) // retries a range a failed older load left at '…'
 }
 
 /** Loads older /events rows back to t (never before the first heartbeat), at most 400 days per request. */
@@ -87,7 +92,8 @@ async function ensureFrom(t) {
   const { data, ok } = await loadWithFallback(`${BASE}/events?from=${from}&to=${S.loadedFrom}`, null)
   const good = ok && goodEvents(data)
   if (good) { S.older = mergeIv(S.older, data.iv); S.loadedFrom = from }
-  S.okEvents = good; S.loading = false
+  if (!good) S.okEvents = false // an older load can report a failure, never hide one
+  S.loading = false
   render()
   if (good) ensureFrom(periodRange(S.period, S.offset, serverNow()).start) // the user may have clicked again meanwhile
 }
@@ -109,6 +115,9 @@ const eventsPath = () => (S.from0 === null ? '/events' : `/events?from=${S.from0
 
 function tick() {
   if (document.hidden) return
+  // performance.now() may stop while the device sleeps: a wall-clock jump means the data is older than the header says
+  if (Date.now() - S.wallAt > 10_000) S.triedStatus = -Infinity
+  S.wallAt = Date.now()
   const at = performance.now(), status = at - S.triedStatus >= 30_000
   // /events waits 5 min only once it has data and its last attempt was good; until then it retries every 30 s
   const events = at - S.triedEvents >= (S.events && S.okEvents ? 300_000 : 30_000)
@@ -129,6 +138,13 @@ $('ui').addEventListener('click', e => {
   if (more) S.showAll = true
   if (f || more) render()
   if (e.target.closest('#csv')) exportCsv()
+})
+// arrow keys move the choice inside a radiogroup, as screen readers announce "radio button, 1 of 3"
+$('ui').addEventListener('keydown', e => {
+  const step = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key], b = e.target.closest('[role=radio]')
+  if (!step || !b) return
+  const all = [...b.parentElement.querySelectorAll('[role=radio]')], next = all[(all.indexOf(b) + step + all.length) % all.length]
+  e.preventDefault(); next.focus(); next.click()
 })
 document.addEventListener('visibilitychange', tick)
 setInterval(tick, 1000)
