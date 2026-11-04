@@ -217,12 +217,12 @@ This requires a writable root filesystem, so the read-only overlay is **not** us
 | text / muted / faint | `#15171c` / `#686c75` / `#a3a6ac` | `#e9ecf2` / `#8b92a3` / `#5b6272` |
 | status on (text, dot) | `#0f9f5a` | `#34d399` |
 | status off (text, dot) | `#dc3d43` | `#fb7185` |
-| track "power on" | `#c9ead6` | `#1f4a3b` |
+| track "power on" | `#2b9571` | `#1da967` |
 | segment "no power" | `#e5484d` | `#fb7185` |
 | segment "no connection" | `#e0a100` hatched | `#fbbf24` hatched |
 | chart series | `#2a78d6` | `#3987e5` |
 
-  The muted-track vs strong-red pairing passed a color-blindness check (deutan ΔE ≥ 25); keep "no connection" hatched as its secondary encoding.
+  The track vs strong-red pairing passes a color-blindness check (deutan and protan ΔE ≥ 8, OKLab ×100). The status greens fail it against red (deutan ΔE about 4), so the track must not reuse them; keep "no connection" hatched as its secondary encoding.
 - **Theme switch** Auto / Light / Dark (top right). Auto follows the device. Choice persisted in `localStorage` (wrapped in try/catch); applied by a tiny inline script in `<head>` so there is no flash.
 - **Language switch** УКР / ENG next to it. Default: Ukrainian if `navigator.languages` contains `uk`, else English; persisted. Brand: "Світло" / "Power". All strings in one dictionary; dates via `Intl` (`uk-UA` / `en-GB`, 24-hour); durations "5 год 12 хв" / "5h 12m". Apartment names come from the API.
 - Responsive via container queries, verified at desktop, iPad and iPhone widths.

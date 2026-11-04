@@ -1,11 +1,11 @@
 /* Ported from docs/superpowers/specs/mockups/site.html. Light (Daylight) is the default; <html data-mode=dark> switches to Midnight. */
 .ui{container-type:inline-size;position:relative;font-family:system-ui,-apple-system,"Inter","Segoe UI",sans-serif;font-variant-numeric:tabular-nums;color:var(--text);background:var(--wash),var(--bg);line-height:1.45;transition:background-color .3s,color .3s}
 :root{color-scheme:light;--bg:#f3f1ec;--card:#fff;--border:rgba(20,20,20,.07);--text:#15171c;--muted:#686c75;--faint:#a3a6ac;--pill:#e8e5de;--pill-on:#fff;
-  --on:#0f9f5a;--off:#dc3d43;--seg-on:#c9ead6;--seg-off:#e5484d;--seg-net:#e0a100;--fut:repeating-linear-gradient(-45deg,#e7e3db 0 4px,#f2efe9 4px 8px);--series:#2a78d6;
+  --on:#0f9f5a;--off:#dc3d43;--seg-on:#2b9571;--seg-off:#e5484d;--seg-net:#e0a100;--fut:repeating-linear-gradient(-45deg,#e7e3db 0 4px,#f2efe9 4px 8px);--series:#2a78d6;
   --shadow:0 1px 2px rgba(0,0,0,.04),0 12px 32px -16px rgba(0,0,0,.16);--ring:rgba(220,61,67,.28);
   --wash:radial-gradient(900px 340px at 12% -8%,rgba(15,159,90,.08),transparent 60%),radial-gradient(700px 300px at 100% 0%,rgba(220,61,67,.06),transparent 60%)}
 :root[data-mode=dark]{color-scheme:dark;--bg:#0a0c10;--card:#111419;--border:rgba(255,255,255,.07);--text:#e9ecf2;--muted:#8b92a3;--faint:#5b6272;--pill:rgba(255,255,255,.06);--pill-on:rgba(255,255,255,.13);
-  --on:#34d399;--off:#fb7185;--seg-on:#1f4a3b;--seg-off:#fb7185;--seg-net:#fbbf24;--fut:repeating-linear-gradient(-45deg,#262b35 0 4px,#171a21 4px 8px);--series:#3987e5;
+  --on:#34d399;--off:#fb7185;--seg-on:#1da967;--seg-off:#fb7185;--seg-net:#fbbf24;--fut:repeating-linear-gradient(-45deg,#262b35 0 4px,#171a21 4px 8px);--series:#3987e5;
   --shadow:none;--ring:rgba(251,113,133,.35);
   --wash:radial-gradient(900px 340px at 12% -8%,rgba(52,211,153,.12),transparent 60%),radial-gradient(700px 300px at 100% 0%,rgba(251,113,133,.08),transparent 60%)}
 .ui .in{padding:28px 32px 36px}
@@ -47,7 +47,7 @@
 .ui .track{position:relative;height:10px;border-radius:5px;background:var(--seg-on)}
 .ui .sg{position:absolute;top:0;bottom:0;border-radius:3px;box-shadow:0 0 0 1.5px var(--card)}
 .ui .sg.off{background:var(--seg-off)}
-.ui .sg.net{background:repeating-linear-gradient(-45deg,var(--seg-net) 0 2.5px,transparent 2.5px 5px)}
+.ui .sg.net{background:repeating-linear-gradient(-45deg,var(--seg-net) 0 2.5px,var(--card) 2.5px 5px)}
 .ui .sg.reboot{background:var(--faint)}
 .ui .sg.fut{background:var(--fut);box-shadow:none;border-radius:0 5px 5px 0}
 .ui .now{position:absolute;top:-3px;bottom:-3px;width:2px;margin-left:-1px;border-radius:1px;background:var(--text)}
