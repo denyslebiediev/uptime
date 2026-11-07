@@ -28,6 +28,17 @@ export function stateView(d, now, lang) {
 /** Seconds of power_off + no_signal. @param {Seg[]} segs */
 export const dayOff = segs => segs.reduce((n, s) => n + (isOff(s.kind) ? s.end - s.start : 0), 0)
 
+/** The [a, b) stretches no segment covers, which the bar shows as power on. @param {Seg[]} segs time-ordered */
+export function onSpans(segs, a, b) {
+  const out = []
+  for (const s of segs) {
+    if (s.start > a) out.push([a, Math.min(s.start, b)])
+    a = Math.max(a, s.end)
+  }
+  if (b > a) out.push([a, b])
+  return out.filter(([x, y]) => y > x)
+}
+
 /**
  * One day's bar over [start, end) (23, 24 or 25 h). Before firstSeen it is "no data", never "powered".
  * @param {Seg[]} segs @param {number | null} [firstSeen] @returns {HTMLElement}
@@ -35,13 +46,15 @@ export const dayOff = segs => segs.reduce((n, s) => n + (isOff(s.kind) ? s.end -
 export function track(segs, start, end, now, name, lang, firstSeen = start) {
   const pct = x => (x / (end - start)) * 100
   const mark = (cls, a, b, tip) => h('i', {
-    className: `sg ${cls}`, style: { left: `${pct(a - start)}%`, width: `${Math.max(pct(b - a), .45)}%` }, dataset: { tip }, role: 'img', 'aria-label': tip,
+    className: `sg ${cls}`, style: { left: `${pct(a - start)}%`, width: `${Math.max(pct(b - a), .45)}%` }, dataset: { tip }, role: 'img', 'aria-label': `${name} · ${tip}`,
   })
-  const noData = Math.min(firstSeen ?? end, end)
+  const span = (label, a, b, open) => `${label} · ${stamp(a, start, lang)} – ${open ? t(lang, 'now') : stamp(b, start, lang)} (${fmtDuration(b - a, lang)})`
+  const noData = Math.min(Math.max(firstSeen ?? end, start), end)
   return h('div', { className: 'track' },
     noData > start && mark('nd', start, noData, t(lang, 'no_data')),
-    ...segs.map(s => mark(SG[s.kind], s.start, s.end,
-      `${name} · ${t(lang, 'kind_' + s.kind)} · ${stamp(s.start, start, lang)} – ${s.ongoing ? t(lang, 'now') : stamp(s.end, start, lang)} (${fmtDuration(s.end - s.start, lang)})`)),
+    // first, so a sliver's minimum width never covers the segment next to it
+    ...onSpans(segs, noData, Math.min(now, end)).map(([a, b]) => mark('on', a, b, span(t(lang, 'legend_on'), a, b, b === now))),
+    ...segs.map(s => mark(SG[s.kind], s.start, s.end, span(t(lang, 'kind_' + s.kind), s.start, s.end, s.ongoing))),
     now < end && h('i', { className: 'sg fut', style: { left: `${pct(now - start)}%`, width: `${pct(end - now)}%` } }),
     now < end && h('i', { className: 'now', style: { left: `${pct(now - start)}%` } }))
 }
