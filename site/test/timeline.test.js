@@ -1,12 +1,15 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 
-import { timelineRows } from '../js/render/timeline.js'
+import { timelineRows, renderTimeline } from '../js/render/timeline.js'
+import { renderHeatmap } from '../js/render/heatmap.js'
 import { onSpans, track, renderCards } from '../js/render/cards.js'
 globalThis.document = { createElement: () => ({ style: { setProperty() {} }, dataset: {}, kids: [], setAttribute() {}, append(...k) { this.kids.push(...k) } }), getElementById: () => ({ content: { querySelector: () => ({ cloneNode: () => ({}) }) } }) }
 const H = 3600, FRI = 1793311200, SAT = 1793397600, SUN = 1793484000, MON = 1793570400 // Kyiv midnights 30 Oct – 2 Nov 2026
 const F22 = 1793390400, NOW = 1793577600 // Fri 22:00, Mon 02:00
 const ev = (iv, first_seen = NOW - 30 * 86400) => ({ now: NOW, from: NOW - 35 * 86400, to: NOW, devices: [{ id: 'centralna', first_seen }], iv })
+const named = { ...ev([]), devices: [{ id: 'centralna', first_seen: NOW - 30 * 86400, name: { en: 'Centralna 50' }, short: { en: 'Centralna' } }] }
+const hours = n => Array.from({ length: n }, (_, i) => String(i)), labels = (el, cls) => el.kids.find(k => k.className === cls).kids.map(k => k.kids[0])
 const day = (rows, d) => rows.find(r => r.start === d).devices[0], spans = x => x.segs.map(s => [s.start, s.end, s.ongoing])
 test('a 50-hour cut draws a segment and a total on every day it touches', () => {
   const rows = timelineRows(ev([['centralna', 'power_off', F22, MON, []]]), NOW)
@@ -34,6 +37,15 @@ test('a status card labels every hour under its bar', () => {
   let card
   const device = { id: 'centralna', name: { en: 'Centralna 50' }, state: 'on', since: MON, flags: [], today: [] }
   renderCards({ replaceChildren: c => { card = c } }, { lang: 'en', now: MON + H, ev: null, status: { day: { start: MON, end: MON + 24 * H }, devices: [device] } })
-  const labels = card.kids.find(k => k.className === 'ticks').kids.map(k => k.kids[0])
-  assert.equal(labels.length, 25); assert.deepEqual([labels[0], labels[9], labels[24]], ['0', '9', '24'])
+  assert.deepEqual(labels(card, 'ticks'), hours(25))
+})
+test('the 14-day axis labels every hour', () => {
+  const tl = { replaceChildren(...k) { this.kids = k } }
+  renderTimeline({ querySelector: s => s === '#tl' ? tl : {} }, { lang: 'en', now: NOW, ev: named })
+  assert.deepEqual(labels(tl.kids[0], 'ticks'), hours(25))
+})
+test('the usual-pattern grid labels each of its 24 hour cells', () => {
+  const el = { replaceChildren(...k) { this.kids = k } }
+  renderHeatmap(el, { lang: 'en', now: NOW, ev: named })
+  assert.deepEqual(labels(el.kids[0], 'hx'), hours(24))
 })

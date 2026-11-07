@@ -4,7 +4,7 @@ import { periodBounds, lastDays, kyivParts } from '../time.js'
 import { fmtDuration, fmtWeekday } from '../format.js'
 import { segments, periodStats } from '../stats.js'
 import { h } from './header.js'
-import { track } from './cards.js'
+import { track, hourTicks } from './cards.js'
 
 /** @typedef {import('../stats.js').Events} Events */
 
@@ -27,9 +27,7 @@ export function renderTimeline(section, v) {
   if (!v.ev) { sub.textContent = ''; return tl.replaceChildren() }
   const devs = v.ev.devices, [a, b] = devs.map(d => d.short[v.lang])
   sub.textContent = t(v.lang, 'tl_sub', { a, b })
-  // shortcut: the 00/06/12/18/24 ticks are evenly spaced, so on 23 h and 25 h days they sit up to 4 % off; tooltips stay exact.
-  const ticks = h('div', { className: 'tl-ticks' }, h('span'),
-    h('div', { className: 'tk' }, ...['00', '06', '12', '18', '24'].map((x, i) => h('span', { style: { left: `${i * 25}%` } }, x))),
+  const ticks = h('div', { className: 'tl-ticks' }, h('span'), hourTicks(),
     h('div', { className: 'tl-tot h' }, ...devs.map(d => h('span', null, d.short[v.lang]))))
   tl.replaceChildren(ticks, ...timelineRows(v.ev, v.now).map((row, r) => h('div', { className: 'tl-row' },
     h('div', { className: 'tl-day' }, ...(r === 0 ? [h('b', null, t(v.lang, 'today'))]

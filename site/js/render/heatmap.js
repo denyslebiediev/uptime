@@ -23,6 +23,6 @@ export function renderHeatmap(el, v) {
   })
   el.replaceChildren(
     h('div', { className: 'hm' }, ...rows, h('span'),
-      h('div', { className: 'hx' }, ...Array.from({ length: 24 }, (_, hour) => h('span', null, hour % 3 ? '' : String(hour).padStart(2, '0'))))),
+      h('div', { className: 'hx' }, ...Array.from({ length: 24 }, (_, hour) => h('span', null, String(hour))))),
     h('div', { className: 'hl' }, h('span', null, t(v.lang, 'rarely')), h('i'), h('span', null, t(v.lang, 'often'))))
 }

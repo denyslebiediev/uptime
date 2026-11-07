@@ -59,6 +59,9 @@ export function track(segs, start, end, now, name, lang, firstSeen = start) {
     now < end && h('i', { className: 'now', style: { left: `${pct(now - start)}%` } }))
 }
 
+// shortcut: 25 evenly spaced hours, so on 23 h and 25 h days they sit up to 4 % off; tooltips stay exact.
+export const hourTicks = () => h('div', { className: 'ticks' }, ...Array.from({ length: 25 }, (_, i) => h('span', null, String(i))))
+
 /** @param {HTMLElement} el `#cards` @param {import('../app.js').View} v */
 export function renderCards(el, v) {
   if (!v.status) return el.replaceChildren()
@@ -75,8 +78,7 @@ export function renderCards(el, v) {
       h('div', { className: 'state' }, icon(s.icon), s.word, s.note && h('small', null, s.note)),
       h('div', { className: 'dur' }, s.dur, s.since && h('small', null, t(v.lang, 'since', { time: s.since }))),
       track(segs, day.start, day.end, v.now, name, v.lang, firstSeen),
-      // shortcut: 25 evenly spaced hours, so on 23 h and 25 h days they sit up to 4 % off; tooltips stay exact.
-      h('div', { className: 'ticks' }, ...Array.from({ length: 25 }, (_, i) => h('span', null, String(i)))),
+      hourTicks(),
       h('div', { className: 'mini' },
         h('span', null, t(v.lang, 'today_off'), ' ', h('b', null, none ? '—' : fmtDuration(dayOff(segs), v.lang))),
         h('span', null, t(v.lang, 'week_off'), ' ', h('b', null, weekOff))))

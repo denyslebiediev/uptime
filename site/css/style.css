@@ -40,9 +40,10 @@
 .ui .dur{font-size:36px;font-weight:600;letter-spacing:-.03em;line-height:1.05;margin:2px 0 16px}
 .ui .dur small{font-size:12.5px;font-weight:500;letter-spacing:0;color:var(--muted);margin-left:8px}
 .ui .ticks{container:ticks/inline-size;display:flex;justify-content:space-between;font-size:10px;color:var(--faint);margin-top:6px}
-/* zero-width boxes land exactly on each hour and the digits centre on them; under 380px every hour would touch, so every 2nd shows */
+/* zero-width boxes land exactly on each hour and the digits centre on them */
 .ui .ticks span{width:0;display:flex;justify-content:center}
-@container ticks (max-width:380px){.ui .ticks span:nth-child(even){display:none}}
+/* under 380px every hour would touch, so every 2nd shows */
+@container ticks (max-width:380px){.ui .ticks span:nth-child(even),.ui .hx span:nth-child(even){visibility:hidden}}
 .ui .mini{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
 .ui .mini b{color:var(--text);font-weight:600}
 
@@ -97,9 +98,7 @@
 .ui .tl-tot{display:grid;grid-template-columns:1fr 1fr;gap:8px;text-align:right;font-size:12px}
 .ui .tl-tot span{white-space:nowrap}
 .ui .tl-tot.h{font-size:10.5px;color:var(--faint)}
-.ui .tk{position:relative;height:14px;margin-left:16px;font-size:10.5px;color:var(--faint)}
-.ui .tk span{position:absolute;transform:translateX(-50%)}
-.ui .tk span:first-child{transform:none} .ui .tk span:last-child{transform:translateX(-100%)}
+.ui .tl-ticks .ticks{margin:0 0 0 16px}
 
 /* bar charts */
 .ui .sm{display:grid;grid-template-columns:1fr 1fr;gap:14px}
@@ -119,10 +118,10 @@
 .ui .hm{display:grid;grid-template-columns:160px 1fr;gap:10px 14px;align-items:center}
 .ui .hm-name{font-size:12.5px;font-weight:600}
 .ui .hm-name small{display:block;font-size:11.5px;font-weight:500;color:var(--muted)}
-.ui .cells,.ui .hx{display:grid;grid-template-columns:repeat(24,1fr);gap:2px}
+.ui .cells,.ui .hx{display:grid;grid-template-columns:repeat(24,minmax(0,1fr));gap:2px}
 .ui .cells i{height:28px;border-radius:4px;background:color-mix(in oklab,var(--series) var(--p),var(--card))}
 .ui .cells i:hover{outline:2px solid var(--text);outline-offset:-1px}
-.ui .hx{font-size:10px;color:var(--faint)}
+.ui .hx{container:ticks/inline-size;justify-items:center;font-size:10px;color:var(--faint)}
 .ui .hl{display:flex;align-items:center;gap:8px;justify-content:flex-end;margin-top:14px;font-size:11px;color:var(--muted)}
 .ui .hl i{width:120px;height:8px;border-radius:4px;background:linear-gradient(90deg,color-mix(in oklab,var(--series) 6%,var(--card)),var(--series))}
 
