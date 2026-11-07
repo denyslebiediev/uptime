@@ -2,7 +2,8 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 
 import { timelineRows } from '../js/render/timeline.js'
-import { onSpans, track } from '../js/render/cards.js'
+import { onSpans, track, renderCards } from '../js/render/cards.js'
+globalThis.document = { createElement: () => ({ style: { setProperty() {} }, dataset: {}, kids: [], setAttribute() {}, append(...k) { this.kids.push(...k) } }), getElementById: () => ({ content: { querySelector: () => ({ cloneNode: () => ({}) }) } }) }
 const H = 3600, FRI = 1793311200, SAT = 1793397600, SUN = 1793484000, MON = 1793570400 // Kyiv midnights 30 Oct – 2 Nov 2026
 const F22 = 1793390400, NOW = 1793577600 // Fri 22:00, Mon 02:00
 const ev = (iv, first_seen = NOW - 30 * 86400) => ({ now: NOW, from: NOW - 35 * 86400, to: NOW, devices: [{ id: 'centralna', first_seen }], iv })
@@ -25,8 +26,14 @@ test('power-on stretches are what the other segments leave between first signal 
   assert.deepEqual(onSpans([], 10, 5), []) // first signal is still in the future
 })
 test('bar tooltips give every stretch of the day, without the apartment name', () => {
-  globalThis.document = { createElement: () => ({ style: { setProperty() {} }, dataset: {}, kids: [], setAttribute() {}, append(...k) { this.kids.push(...k) } }) }
   const cut = { kind: 'power_off', start: MON + H, end: MON + 3 * H, ongoing: false, flags: [] }
   const bar = track([cut], MON, MON + 24 * H, MON + 4 * H, 'Centralna 50', 'en', FRI) // first seen days before this bar
   assert.deepEqual(bar.kids.map(k => k.dataset.tip).filter(Boolean), ['Power on · 00:00 – 01:00 (1h 00m)', 'Power on · 03:00 – now (1h 00m)', 'Power cut · 01:00 – 03:00 (2h 00m)'])
+})
+test('a status card labels every hour under its bar', () => {
+  let card
+  const device = { id: 'centralna', name: { en: 'Centralna 50' }, state: 'on', since: MON, flags: [], today: [] }
+  renderCards({ replaceChildren: c => { card = c } }, { lang: 'en', now: MON + H, ev: null, status: { day: { start: MON, end: MON + 24 * H }, devices: [device] } })
+  const labels = card.kids.find(k => k.className === 'ticks').kids.map(k => k.kids[0])
+  assert.equal(labels.length, 25); assert.deepEqual([labels[0], labels[9], labels[24]], ['0', '9', '24'])
 })

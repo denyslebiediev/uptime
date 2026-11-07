@@ -75,7 +75,8 @@ export function renderCards(el, v) {
       h('div', { className: 'state' }, icon(s.icon), s.word, s.note && h('small', null, s.note)),
       h('div', { className: 'dur' }, s.dur, s.since && h('small', null, t(v.lang, 'since', { time: s.since }))),
       track(segs, day.start, day.end, v.now, name, v.lang, firstSeen),
-      h('div', { className: 'ticks' }, ...['00', '06', '12', '18', '24'].map(x => h('span', null, x))),
+      // shortcut: 25 evenly spaced hours, so on 23 h and 25 h days they sit up to 4 % off; tooltips stay exact.
+      h('div', { className: 'ticks' }, ...Array.from({ length: 25 }, (_, i) => h('span', null, String(i)))),
       h('div', { className: 'mini' },
         h('span', null, t(v.lang, 'today_off'), ' ', h('b', null, none ? '—' : fmtDuration(dayOff(segs), v.lang))),
         h('span', null, t(v.lang, 'week_off'), ' ', h('b', null, weekOff))))
